@@ -6,6 +6,7 @@ const store = require("./store");
 const report = require("./report");
 const { applyCalibration, interactiveCalibration } = require("./calibrate");
 const { share } = require("./share");
+const { runBatch } = require("./batch");
 const { LENSES, STAGES, TYPES } = require("./categories");
 const { VERDICT_LABEL, VERDICT_PLAIN, topIssues, canaryLine, allUnknowns, oneLine } = require("./report-model");
 
@@ -31,6 +32,10 @@ const HELP = `launchcheck — Futreeng launch-readiness evaluator
       --false-positive=<finding-id> --reason="why it didn't matter"
       --note="context, e.g. pilot launch 10/2"
   launchcheck share [path] [--to=dir]   copy the latest HTML report to your Desktop (or dir) and print the path
+  launchcheck batch [config.json]   run evaluations on multiple projects from a FutureengProjects.json config
+      --only=project-id,other-id    evaluate only specified projects
+      --lenses=a,b                   run only these lenses across all projects
+      --model=M                      lens agent model (default sonnet)
   launchcheck lenses             list lens ids
 
 Exit codes: 0 ok, 1 error, 2 usage, 3 refused (production config / live credentials in scope).`;
@@ -122,6 +127,21 @@ function cmdDiff(target) {
   process.stdout.write(report.renderDiffText(report.diffRuns(runs[1], runs[0])) + "\n");
 }
 
+async function cmdBatch(projectsFile, f) {
+  try {
+    const result = await runBatch(projectsFile, {
+      only: typeof f.only === "string" ? f.only : null,
+      lenses: typeof f.lenses === "string" ? f.lenses : null,
+      model: typeof f.model === "string" ? f.model : "sonnet",
+      timeout: 7200000,
+    });
+    process.stdout.write(`\n✓ Batch complete: ${result.results.filter((r) => r.ok).length}/${result.results.length} evaluated, $${result.totalCost.toFixed(2)}, ${Math.round(result.totalTime / 60)}min\n`);
+  } catch (e) {
+    process.stderr.write(`${e.message}\n`);
+    process.exitCode = 1;
+  }
+}
+
 async function cmdCalibrate(target, f) {
   let res;
   if (f.missed || f["false-positive"]) {
@@ -149,6 +169,8 @@ async function main(argv) {
   switch (cmd) {
     case "run":
       return cmdRun(target, flags);
+    case "batch":
+      return cmdBatch(target, flags);
     case "history":
       return cmdHistory(target);
     case "diff":

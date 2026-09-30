@@ -1,0 +1,28 @@
+{
+  "name": "Futreeng Product Portfolio",
+  "description": "Launch-readiness tracking for all Futreeng projects",
+  "updated": "2026-09-30T21:40:00Z",
+  "projects": [
+    {
+      "id": "convergence-app",
+      "name": "Convergence",
+      "path": "~/OneDrive/Desktop/convergence-app/convergence-app",
+      "stage": "ga",
+      "type": "saas",
+      "owner": "Joe & Haron",
+      "notes": "Production growth engine"
+    },
+    {
+      "id": "clipscore",
+      "name": "ClipScore",
+      "path": "~/Desktop/clipscore",
+      "stage": "pilot",
+      "type": "saas",
+      "owner": "Joe",
+      "notes": "Test fixture; intentionally has vulnerabilities for testing"
+    }
+  ],
+  "shared_rubric": ".launchcheck/shared-rubric.json",
+  "reports_dir": "~/Desktop/launchcheck-reports",
+  "notes": "Add projects by path. Stage inference works if not specified. Shared rubric applies to all unless overridden in project's .launchcheck/project.json."
+}

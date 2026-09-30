@@ -232,6 +232,17 @@ function tail(s, lines) {
   return a.length > lines ? `…[${a.length - lines} earlier lines omitted]\n` + a.slice(-lines).join("\n") : a.join("\n");
 }
 
+function expand(p) {
+  if (typeof p !== "string") return p;
+  if (p.startsWith("~/")) return path.join(require("os").homedir(), p.slice(2));
+  if (p.startsWith("~")) return require("os").homedir() + p.slice(1);
+  return p;
+}
+
+function ensureDir(dir) {
+  mkdirp(dir);
+}
+
 module.exports = {
   IS_WIN,
   log,
@@ -254,4 +265,6 @@ module.exports = {
   readText,
   truncate,
   tail,
+  expand,
+  ensureDir,
 };

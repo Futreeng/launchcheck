@@ -22,6 +22,7 @@ That's the whole interface for the common case. Everything below is for when you
 | Command | What it does |
 |---|---|
 | `launchcheck run [path]` | Full evaluation (default: current directory). Measured: ~19 min / $14 on a 13-file app; see `history` for Convergence-sized numbers. `--lenses=` subsets cost proportionally less (3 lenses ≈ $3.50). |
+| `launchcheck batch [config.json]` | Evaluate multiple projects from a `FutureengProjects.json` config file. Produces a portfolio dashboard showing all projects' verdicts, findings, and costs. `--only=project-id,other-id` to subset. `--lenses=` applies across all projects. |
 | `launchcheck share [path]` | Copies the latest HTML report to your Desktop as `launchcheck-<project>-<date>.html` and prints the path. Drag it into Slack or email. |
 | `launchcheck diff [path]` | Latest run vs the one before: new / resolved / still present / severity changed. |
 | `launchcheck history [path]` | Every past run with verdict, counts, rubric version, cost. |
@@ -105,6 +106,45 @@ Each run writes `.launchcheck/runs/<run-id>/` in the **target** project, contain
 - **Downweighted lenses** are listed with the reason. For example, ops tooling isn't expected on a concept. Effective weight = rubric weight × (0.5 + 0.5 × the lens's own applicability score), so a lens can argue its own weight down by at most half.
 - **"Found by N separate checks"**: independent lenses often hit the same bug from different angles (an IDOR is a security, privacy and paywall issue). The summary merges them only when they share a key, or cite mostly the same lines *and* make a similar claim. This is deliberately conservative, since hiding a distinct issue is worse than showing a near-duplicate. The full detail lists every lens's finding separately.
 - **Since last run** comes from matching stable finding keys across runs. An issue only counts as "resolved" if that lens actually ran both times.
+
+## Portfolio: Batch evaluation across Futreeng projects
+
+Create a `FutureengProjects.json` file:
+
+```json
+{
+  "name": "Futreeng Product Portfolio",
+  "projects": [
+    {
+      "id": "convergence-app",
+      "name": "Convergence",
+      "path": "~/OneDrive/Desktop/convergence-app/convergence-app",
+      "stage": "ga",
+      "owner": "Joe & Haron"
+    },
+    {
+      "id": "clipscore",
+      "name": "ClipScore",
+      "path": "~/Desktop/clipscore",
+      "stage": "pilot",
+      "owner": "Joe"
+    }
+  ],
+  "reports_dir": "~/Desktop/launchcheck-reports"
+}
+```
+
+Then:
+
+```
+launchcheck batch FutureengProjects.json
+```
+
+Evaluates all projects in parallel (5 concurrent agents per project), collects results, and produces:
+- `portfolio-<date>.json` — raw verdicts, findings counts, costs
+- `portfolio-<date>.html` — dashboard showing all projects' status at a glance
+
+Use `--only=convergence-app,clipscore` to run a subset. Use `--lenses=security,monetization` to spot-check just one lens across all projects (~$3–4 per project).
 
 ## Handing a report to Haron
 
