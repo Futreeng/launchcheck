@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ClipScore</title></head>
+<body>
+  <h1>ClipScore</h1>
+  <p>Score your creator account and get a growth plan.</p>
+  <form id="f"><input name="handle" placeholder="@handle"><button>Score me</button></form>
+  <section id="result">
+    <!-- TODO(haron): real report layout; this is mock data until the design lands -->
+    <h2>Your score: 74</h2>
+    <p>Lorem ipsum dolor sit amet, growth plan preview goes here.</p>
+  </section>
+  <section id="pricing">
+    <h2>Pro — $29/mo</h2>
+    <a href="#">Upgrade (coming soon)</a>
+  </section>
+  <script>
+    const MOCK = true; // until the report page is designed
+    document.getElementById("f").onsubmit = (e) => { e.preventDefault(); if (MOCK) return; };
+  </script>
+</body>
+</html>

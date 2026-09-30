@@ -1,0 +1,4 @@
+node_modules/
+.launchcheck/
+test/fixtures/**/node_modules/
+test/fixtures/**/data/

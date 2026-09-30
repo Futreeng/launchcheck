@@ -1,0 +1,17 @@
+{
+  "name": "futreeng-launchcheck",
+  "version": "0.1.0",
+  "description": "Futreeng's internal launch-readiness evaluator: independent lens agents, adversarial verification, calibrated over time.",
+  "type": "commonjs",
+  "bin": {
+    "launchcheck": "bin/launchcheck.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/unit/*.test.js"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
