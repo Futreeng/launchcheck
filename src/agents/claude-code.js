@@ -71,17 +71,21 @@ function createClaudeCodeBackend() {
         };
         if (r.timedOut) return { ok: false, error: `agent timed out after ${Math.round(timeoutMs / 60000)} min`, meta };
         if (!j) return { ok: false, error: `no JSON from claude (exit ${r.code}): ${(r.stderr || r.stdout).slice(0, 500)}`, meta };
-        if (j.is_error || !j.structured_output) return { ok: false, error: `claude returned ${j.subtype || "error"}${j.api_error_status ? ` (API ${j.api_error_status})` : ""}: ${String(j.result || "").slice(0, 400)}`, meta };
+        if (j.is_error || !j.structured_output) return { ok: false, error: `claude returned ${j.subtype || "error"}${j.api_error_status ? ` (API ${j.api_error_status})` : ""}: ${String(j.result || "").slice(0, 400)}`, meta, isRateLimit: j.api_error_status === 429 };
         return { ok: true, output: j.structured_output, meta };
       };
       let res = await attempt();
-      if (!res.ok && !/timed out/.test(res.error)) {
-        await new Promise((r) => setTimeout(r, 15000));
-        const second = await attempt();
-        second.meta.retried = true;
-        second.meta.firstError = res.error;
-        if (res.meta.costUsd) second.meta.costUsd = (second.meta.costUsd || 0) + res.meta.costUsd;
-        res = second;
+      // Retry on rate limits (429) with exponential backoff, up to 3 times
+      for (let retryCount = 0; retryCount < 3 && !res.ok && (res.isRateLimit || !/timed out/.test(res.error)); retryCount++) {
+        const waitMs = 1000 * Math.pow(2, retryCount); // 1s, 2s, 4s
+        await new Promise((r) => setTimeout(r, waitMs));
+        const attempt2 = await attempt();
+        attempt2.meta.retried = true;
+        attempt2.meta.retryCount = retryCount + 1;
+        attempt2.meta.firstError = res.error;
+        if (res.meta.costUsd) attempt2.meta.costUsd = (attempt2.meta.costUsd || 0) + res.meta.costUsd;
+        res = attempt2;
+        if (res.ok) break;
       }
       return res;
     },
