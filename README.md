@@ -12,10 +12,16 @@ That's the whole interface for the common case. Everything below is for when you
 
 ## Setup (once)
 
-- Node 20+ (built and tested on Node 24, Windows 11).
-- Claude Code CLI installed and logged in (`claude --version`). launchcheck finds it on PATH or at `~/.local/bin/claude.exe`. Override with `LAUNCHCHECK_CLAUDE_BIN`.
-- No `npm install`. launchcheck has zero dependencies on purpose, so it adds no supply-chain risk to the projects it evaluates.
-- Optional: `npm link` in this folder so `launchcheck` works from anywhere.
+1. **Node 20+** (built and tested on Node 24, Windows 11).
+2. **Claude Code CLI** installed and logged in (`claude --version`). launchcheck finds it on PATH or at `~/.local/bin/claude.exe`. Override with `LAUNCHCHECK_CLAUDE_BIN`.
+3. **Global command** (optional but recommended):
+   ```bash
+   cd C:\path\to\future-tools\launchcheck
+   npm link
+   ```
+   Now you can run `launchcheck` from anywhere.
+
+**Zero dependencies:** launchcheck has zero npm dependencies on purpose. It adds no supply-chain risk to the projects it evaluates.
 
 ## Commands
 
