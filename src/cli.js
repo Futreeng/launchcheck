@@ -16,7 +16,7 @@ const HELP = `launchcheck — Futreeng launch-readiness evaluator
       --type=saas|sdk|internal   override inferred project type
       --stage=concept|pilot|beta|ga   who you're shipping to (override inference)
       --lenses=a,b               run only these lenses (default: all ${LENSES.length})
-      --concurrency=N            parallel agents (default 5)
+      --concurrency=N            parallel agents (default 1; use 3-5 if you have plenty of API quota)
       --model=M                  lens agent model (default sonnet)
       --verifier-model=M         verifier model (default opus: a different model from the lenses)
       --verifier=claude-code|gemini   verifier backend (gemini is experimental/untested)
@@ -68,7 +68,7 @@ async function cmdRun(target, f) {
     type: f.type,
     stage: f.stage,
     lenses: typeof f.lenses === "string" ? f.lenses : null,
-    concurrency: parseInt(f.concurrency, 10) || 5,
+    concurrency: parseInt(f.concurrency, 10) || 1,  // serial by default; safe for rate limits
     model: typeof f.model === "string" ? f.model : "sonnet",
     verifierModel: typeof f["verifier-model"] === "string" ? f["verifier-model"] : f.verifier === "gemini" ? undefined : "opus",
     backend: typeof f.backend === "string" ? f.backend : "claude-code",
