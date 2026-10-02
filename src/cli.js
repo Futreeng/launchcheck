@@ -7,6 +7,7 @@ const report = require("./report");
 const { applyCalibration, interactiveCalibration } = require("./calibrate");
 const { share } = require("./share");
 const { runBatch } = require("./batch");
+const { startDashboardServer } = require("./dashboard");
 const { LENSES, STAGES, TYPES } = require("./categories");
 const { VERDICT_LABEL, VERDICT_PLAIN, topIssues, canaryLine, allUnknowns, oneLine } = require("./report-model");
 
@@ -38,6 +39,7 @@ const HELP = `launchcheck — Futreeng launch-readiness evaluator
       --lenses=a,b                   run only these lenses across all projects
       --model=M                      lens agent model (default sonnet)
   launchcheck lenses             list lens ids
+  launchcheck dashboard [config.json]   start web dashboard showing all projects (port 3000, default config: FutureengProjects.json)
 
 Exit codes: 0 ok, 1 error, 2 usage, 3 refused (production config / live credentials in scope).`;
 
@@ -191,6 +193,16 @@ async function main(argv) {
     case "lenses":
       for (const l of LENSES) process.stdout.write(`${l.id.padEnd(20)} ${l.title}\n`);
       return;
+    case "dashboard": {
+      const configFile = path.resolve(pos[0] || "FutureengProjects.json");
+      const port = parseInt(flags.port, 10) || 3000;
+      try {
+        startDashboardServer(configFile, port);
+      } catch (e) {
+        return fail(`Failed to start dashboard: ${e.message}`, 1);
+      }
+      return;
+    }
     case undefined:
     case "help":
     case "--help":
