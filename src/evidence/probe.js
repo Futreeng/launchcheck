@@ -235,4 +235,74 @@ async function runSequence(server, seq, idx, redact) {
   return out.join("\n");
 }
 
-module.exports = { startServer, sweep, runSequence, detectStart, httpRequest, ephemeralSecrets };
+// Test if app handles credential rotation gracefully
+async function testCredentialRotation(server, baseUrl) {
+  const results = [];
+  const testEndpoint = "/api/health"; // Try common health check first
+
+  // Attempt to hit a health/status endpoint to verify app is running
+  const healthCheck = await httpRequest(baseUrl, { method: "GET", path: testEndpoint }, null);
+  if (healthCheck.status === null) {
+    return { success: false, error: "Health endpoint unreachable", ms: healthCheck.ms };
+  }
+
+  // If app requires API key rotation, it should handle 401/403 gracefully
+  // and not crash on missing/invalid credentials
+  const withBadAuth = await httpRequest(baseUrl, { method: "GET", path: "/api", headers: { authorization: "Bearer invalid_rotated_key_12345" } }, null);
+  const gracefulFailure = withBadAuth.status === 401 || withBadAuth.status === 403 || withBadAuth.status === 400;
+
+  results.push(`Health check: ${healthCheck.status} (${healthCheck.ms}ms)`);
+  results.push(`Invalid auth handling: ${withBadAuth.status} - ${gracefulFailure ? "PASS (graceful)": "FAIL (unexpected response)"}`);
+
+  return {
+    success: gracefulFailure && healthCheck.status === 200,
+    results: results.join("\n"),
+    ms: healthCheck.ms + withBadAuth.ms,
+  };
+}
+
+// Simple load test: hit a lightweight endpoint repeatedly, measure latency under load
+async function testLoadCapacity(server, baseUrl, opts = {}) {
+  const endpoint = opts.endpoint || "/";
+  const concurrency = opts.concurrency || 5;
+  const iterations = opts.iterations || 20;
+  const results = [];
+
+  const latencies = [];
+  const errors = [];
+
+  for (let batch = 0; batch < Math.ceil(iterations / concurrency); batch++) {
+    const batch_reqs = [];
+    for (let i = 0; i < Math.min(concurrency, iterations - batch * concurrency); i++) {
+      batch_reqs.push(httpRequest(baseUrl, { method: "GET", path: endpoint }, null));
+    }
+    const batch_res = await Promise.all(batch_reqs);
+    for (const res of batch_res) {
+      if (res.status === null) {
+        errors.push(res.error);
+      } else {
+        latencies.push(res.ms);
+      }
+    }
+    await new Promise((r) => setTimeout(r, 100)); // Slight delay between batches
+  }
+
+  const sorted = latencies.sort((a, b) => a - b);
+  const p50 = sorted[Math.floor(sorted.length * 0.5)];
+  const p95 = sorted[Math.floor(sorted.length * 0.95)];
+  const p99 = sorted[Math.floor(sorted.length * 0.99)];
+  const avg = Math.round(sorted.reduce((a, b) => a + b, 0) / sorted.length);
+  const max = Math.max(...sorted);
+
+  results.push(`Requests: ${iterations}, Concurrency: ${concurrency}, Errors: ${errors.length}`);
+  results.push(`Latency: avg=${avg}ms p50=${p50}ms p95=${p95}ms p99=${p99}ms max=${max}ms`);
+  if (errors.length > 0) results.push(`Errors: ${errors.slice(0, 3).join(", ")}${errors.length > 3 ? `... and ${errors.length - 3} more` : ""}`);
+
+  return {
+    success: errors.length === 0,
+    results: results.join("\n"),
+    stats: { latencies: sorted, p50, p95, p99, avg, max, errorCount: errors.length },
+  };
+}
+
+module.exports = { startServer, sweep, runSequence, detectStart, httpRequest, ephemeralSecrets, testCredentialRotation, testLoadCapacity };
