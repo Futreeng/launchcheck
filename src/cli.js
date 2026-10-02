@@ -15,7 +15,7 @@ const HELP = `launchcheck — Futreeng launch-readiness evaluator
   launchcheck run [path]         full evaluation (default: current directory)
       --type=saas|sdk|internal   override inferred project type
       --stage=concept|pilot|beta|ga   who you're shipping to (override inference)
-      --lenses=a,b               run only these lenses (default: all ${LENSES.length})
+      --lenses=a,b               run only these lenses (${LENSES.length})
       --concurrency=N            parallel agents (default 1; use 3-5 if you have plenty of API quota)
       --model=M                  lens agent model (default sonnet)
       --verifier-model=M         verifier model (default opus: a different model from the lenses)

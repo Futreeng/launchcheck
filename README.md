@@ -69,7 +69,7 @@ Exit codes: `0` ran (whatever the verdict), `1` error, `2` bad usage, `3` **refu
    - runs the real test suite (`npm test`);
    - runs a real `npm audit`;
    - boots the app and sends every discovered route a request with **no credentials** (`probe-sweep`).
-4. **15 independent lens agents** (Claude Code, read-only tools), one per lane. Each sees only its own lane:
+4. **16 independent lens agents** (Claude Code, read-only tools), one per lane. Each sees only its own lane:
    - functional correctness & tests;
    - security;
    - data & privacy;
@@ -82,6 +82,7 @@ Exit codes: `0` ran (whatever the verdict), `1` error, `2` bad usage, `3` **refu
    - monetization correctness;
    - design/UX *completion* (never design taste);
    - legal surface (only "this appears to be missing");
+   - **data privacy & state compliance** (CCPA, VPBA, COPPA, GDPR, data retention, encryption, deletion/export endpoints);
    - validation evidence;
    - rollback & incident response;
    - project-specific risk not covered by the rest.

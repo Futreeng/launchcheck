@@ -35,7 +35,7 @@ A CLI tool that evaluates any software project's launch-readiness by:
 - **Mechanical validation:** Every citation verified — file exists, lines exist, quoted text matches, artifact excerpts match verbatim. Claims with failed evidence are dropped.
 
 ### Evaluation
-- **15 independent lenses** (one per risk category: functional-tests, security, data-privacy, reliability, performance, cost, ops, dependencies, docs-busfactor, monetization, design-completion, legal, validation, rollback-incident, uncovered-risk)
+- **16 independent lenses** (one per risk category: functional-tests, security, data-privacy, reliability, performance, cost, ops, dependencies, docs-busfactor, monetization, design-completion, legal, **compliance-privacy**, validation, rollback-incident, uncovered-risk)
 - **Stage & type weighting:** Weights scale 0.1–2.0 per project stage (concept/pilot/beta/ga) and type (saas/sdk/internal); lenses can argue their own weight down for inapplicable stages
 - **Verifier canary:** Every run (if probe available) plants one known-false claim ("route X has no auth") in one verifier. If verifier refutes it, refutation mechanism works. If verifier *confirms* it, all that lens's confirmations are downgraded to "contested" (prevents rubber-stamping)
 
