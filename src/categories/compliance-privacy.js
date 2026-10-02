@@ -3,22 +3,33 @@ const { defineLens } = require("./_define");
 
 module.exports = defineLens({
   id: "compliance-privacy",
-  title: "Data privacy & state compliance",
-  question: "Does the app comply with state privacy laws (CCPA, VPBA, COPPA, etc.) and handle user data securely across all applicable jurisdictions?",
+  title: "Data privacy & regulated compliance",
+  question: "Does the app comply with privacy laws (CCPA, GDPR, HIPAA, PCI-DSS, SOC 2) and handle user data securely across all applicable jurisdictions?",
   hunt: `
-- CCPA (California): Must have privacy policy, right to delete, right to access, opt-out of sale, no discrimination for exercising rights.
-- VPBA (Virginia), Colorado CPA, Connecticut DPA, Utah CPA: Similar to CCPA—right to delete, right to know, opt-out of sale/targeting.
+**Privacy Laws:**
+- CCPA (California): Privacy policy, right to delete, right to access, opt-out of sale, no discrimination for exercising rights.
+- VPBA (Virginia), Colorado CPA, Connecticut DPA, Utah CPA, Montana MCDPA: Right to delete, right to know, opt-out of sale/targeting. Flag if collected from these states.
 - COPPA (under 13): Parental consent, no marketing, retention limits, no tracking.
-- GDPR (EU users): Cookie consent before tracking, privacy policy, data processing agreement if third parties involved.
-- **Data storage location**: Flag if collected from regulated regions but stored outside (CA data in EU, EU data in US without standard contract, etc.).
-- **Encryption**: Detect if user data is encrypted at rest (AWS KMS, encrypted DB, .env secrets). Flag hardcoded keys or plaintext storage.
-- **Data deletion**: Test for DELETE /user or equivalent—manually probe if app has deletion endpoint and verify it actually works.
-- **Data access**: Test for GET /user/data or export endpoint—users must be able to retrieve their data in portable format.
-- **Third-party risk**: Identify integrations (Stripe, SendGrid, Segment, etc.) that receive user data. Flag if they don't provide data processing agreements.
-- **Retention policies**: Look for documented data retention (e.g., "logs kept 30 days", "user profiles indefinitely"). Flag indefinite retention of sensitive data.
-- **Data sharing**: If policy claims "we never share user data" but code shares with third parties, flag the contradiction.
-- **Children's data**: If targeting children (<13), flag compliance with COPPA: parental consent, no ads, retention limits.
-- **Unsubscribe/opt-out**: If sending marketing emails, must have unsubscribe link and mailing address. If selling data, must honor do-not-sell.`,
+- GDPR (EU users): Cookie consent before tracking, privacy policy, DPA if third parties process data.
+- State ID/doxxing laws (Montana, Virginia, etc.): Restrict how ID data (SSN, driver's license) is used/stored. Flag if collecting but policy vague.
+
+**Regulated Data (if handling):**
+- **HIPAA** (health data): Requires encryption at rest/transit, audit logs, BAAs with processors, patient rights (access, amendment, deletion).
+- **PCI-DSS** (credit cards): No card data storage (tokenize instead), encryption, annual audits. Flag any hardcoded card handling.
+- **SOC 2** (enterprise SaaS): Document controls, encryption, access logs, disaster recovery. Flag if targeting enterprise without SOC 2 claim.
+- **FERPA** (education): Family Education Rights and Privacy Act—student records need parental consent, audit trails.
+
+**Data Security & Handling:**
+- **Data storage location**: Flag if CA data in EU, EU data in US without Standard Contract, health data outside HIPAA-compliant regions.
+- **Encryption**: Detect at-rest encryption (AWS KMS, encrypted DB). Flag plaintext, hardcoded keys, or unencrypted backups.
+- **Data deletion**: Test DELETE /user—verify it's not just soft-delete, actually purges from backups.
+- **Data export**: Test GET /user/data—must return portable format (JSON, CSV), include all collected data.
+- **Access logs**: If regulated, must log who accessed what data and when. Flag if no audit trail.
+- **Third-party risk**: Integrations (Stripe, SendGrid, Segment) that receive PII must have DPA/BAA. Flag if none.
+- **Retention policies**: Document data retention for each data category. Flag "forever" for sensitive data, missing retention for logs.
+- **Data sharing contradictions**: Policy claims "no sharing" but code shares with third parties → cite both.
+- **Children's data**: COPPA requires parental consent, no tracking, no advertising. Flag if app doesn't enforce.
+- **Unsubscribe/opt-out**: Marketing emails need unsubscribe link + postal address. Do-not-sell requests must be honored.`,
   probes: [
     {
       id: "data-deletion-test",

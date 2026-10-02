@@ -308,7 +308,9 @@ async function evaluate(targetArg, opts) {
     projectCfg.profile = { ...(projectCfg.profile || {}), stage: profile.stage, answered_at: new Date().toISOString() };
     store.saveProject(target, projectCfg);
   }
-  const rubric = store.loadRubric(target);
+  let rubric = store.loadRubric(target);
+  const orgRubric = store.loadOrgRubric();
+  if (orgRubric) rubric = store.applyOrgRubric(rubric, orgRubric);
   const weights = rubric.weights[profile.type][profile.stage];
 
   const g = S.gitArtifact(target);

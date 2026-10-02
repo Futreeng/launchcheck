@@ -35,7 +35,11 @@ function paths(target) {
 
 function globalPaths() {
   const root = process.env.LAUNCHCHECK_HOME || path.join(os.homedir(), ".launchcheck");
-  return { root, typeWeights: path.join(root, "type-weights.json") };
+  return {
+    root,
+    typeWeights: path.join(root, "type-weights.json"),
+    orgRubric: path.join(root, "org-rubric.json"),
+  };
 }
 
 function loadProject(target) {
@@ -117,6 +121,47 @@ function loadRubric(target) {
   return r;
 }
 
+function loadOrgRubric() {
+  return readJSON(globalPaths().orgRubric, null);
+}
+
+function applyOrgRubric(projectRubric, orgRubric) {
+  if (!orgRubric) return projectRubric;
+  const merged = JSON.parse(JSON.stringify(projectRubric));
+  // Org weights multiply project weights (org can amplify/mute per-type)
+  if (orgRubric.weights) {
+    for (const [type, stages] of Object.entries(orgRubric.weights)) {
+      for (const [stage, lenses] of Object.entries(stages)) {
+        for (const [lens, orgWeight] of Object.entries(lenses)) {
+          if (merged.weights?.[type]?.[stage]?.[lens] !== undefined) {
+            merged.weights[type][stage][lens] = Math.round(merged.weights[type][stage][lens] * orgWeight * 100) / 100;
+          }
+        }
+      }
+    }
+  }
+  // Org standing checks are inherited (union)
+  if (orgRubric.standing_checks?.length) {
+    const existing = new Set(merged.standing_checks.map((s) => s.id));
+    for (const sc of orgRubric.standing_checks) {
+      if (!existing.has(sc.id)) merged.standing_checks.push(sc);
+    }
+  }
+  // Org false positive precedents are inherited
+  if (orgRubric.fp_precedents?.length) {
+    const existing = new Set(merged.fp_precedents.map((f) => f.id));
+    for (const fp of orgRubric.fp_precedents) {
+      if (!existing.has(fp.id)) merged.fp_precedents.push(fp);
+    }
+  }
+  // Org confidence multipliers are inherited (org trumps project)
+  if (orgRubric.confidence_multipliers) {
+    merged.confidence_multipliers = { ...merged.confidence_multipliers, ...orgRubric.confidence_multipliers };
+  }
+  merged.org_rubric_applied = true;
+  return merged;
+}
+
 function saveRubric(target, rubric, change, reason) {
   const p = paths(target);
   rubric.version = (rubric.version || 0) + 1;
@@ -176,6 +221,8 @@ module.exports = {
   loadRubric,
   saveRubric,
   freshRubric,
+  loadOrgRubric,
+  applyOrgRubric,
   recordTypeDelta,
   listHistory,
   loadRun,
