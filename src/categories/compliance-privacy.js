@@ -27,24 +27,41 @@ module.exports = defineLens({
 - **Access logs**: If regulated, must log who accessed what data and when. Flag if no audit trail.
 - **Third-party risk**: Integrations (Stripe, SendGrid, Segment) that receive PII must have DPA/BAA. Flag if none.
 - **Retention policies**: Document data retention for each data category. Flag "forever" for sensitive data, missing retention for logs.
-- **Data sharing contradictions**: Policy claims "no sharing" but code shares with third parties → cite both.
+- **Document-Code Consistency** (critical):
+  - Privacy policy claims "we delete data after 30 days" → verify code actually does this (cron job, cleanup task, or explicit DELETE)
+  - Privacy policy claims "data encrypted at rest" → verify DB uses encryption (AWS KMS, Prisma encrypted fields, etc.)
+  - T&C claims "99.9% uptime SLA" → verify infrastructure can deliver (not shared hosting, has auto-scaling, multi-region, etc.)
+  - Privacy policy lists what data is collected → verify code doesn't collect additional undisclosed data (analytics, tracking pixels, etc.)
+  - Privacy policy claims "no third-party cookies" → verify analytics/tracking code doesn't use third-party trackers (Google Analytics, Segment, Facebook Pixel)
+  - T&C claims "data never leaves US" → verify APIs, backups, CDN, and all processors are US-only
+  - Privacy policy claims "no marketing emails without consent" → verify code respects unsubscribe/opt-out (not sending emails to unsubscribed users)
 - **Children's data**: COPPA requires parental consent, no tracking, no advertising. Flag if app doesn't enforce.
 - **Unsubscribe/opt-out**: Marketing emails need unsubscribe link + postal address. Do-not-sell requests must be honored.`,
   probes: [
     {
       id: "data-deletion-test",
-      prompt: "Test the data deletion flow: create an account, sign in, find and trigger account/data deletion, verify profile is gone or inaccessible.",
+      prompt: "Test the data deletion flow: create an account, sign in, find and trigger account/data deletion, verify profile is gone or inaccessible. Check privacy policy for retention claims (e.g., 'deleted after 30 days').",
       timeout: 60,
     },
     {
       id: "data-export-test",
-      prompt: "Test data export/access flow: sign in, find 'download my data' or export endpoint, verify it returns user data in a portable format (JSON, CSV).",
+      prompt: "Test data export/access flow: sign in, find 'download my data' or export endpoint, verify it returns ALL user data in portable format (JSON, CSV). Check privacy policy claims about what data is collected.",
       timeout: 60,
     },
     {
       id: "gdpr-consent-test",
-      prompt: "If app has analytics or tracking: check for GDPR/cookie consent banner. For EU users (or 'all users'), verify consent is obtained before third-party tracking fires.",
+      prompt: "If app has analytics or tracking: check for GDPR/cookie consent banner. Verify consent is obtained BEFORE third-party tracking fires (Google Analytics, Segment, etc.). Check privacy policy for third-party tracking disclosures.",
       timeout: 30,
+    },
+    {
+      id: "document-code-consistency",
+      prompt: "Find and review privacy policy, terms of service, and security/compliance pages. For each claim about data handling (retention, encryption, storage location, third-party sharing, deletion, export), verify the code actually implements it. Look for: (1) data retention code (cron jobs, cleanup tasks), (2) encryption config in DB/code, (3) APIs that respect deletion/export, (4) third-party integrations match disclosed list.",
+      timeout: 120,
+    },
+    {
+      id: "undisclosed-data-collection",
+      prompt: "Check if privacy policy lists all data collected. Review app code and network requests for analytics, tracking pixels, session recording (Hotjar, Fullstory, etc.), CDN analytics, error tracking (Sentry, Rollbar), or marketing pixels. Flag if code collects data not mentioned in privacy policy.",
+      timeout: 60,
     },
   ],
   artifacts: ["files", "routes", "env"],
