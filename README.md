@@ -27,13 +27,14 @@ That's the whole interface for the common case. Everything below is for when you
 
 | Command | What it does |
 |---|---|
-| `launchcheck run [path]` | Full evaluation (default: current directory). Measured: ~19 min / $14 on a 13-file app; see `history` for Convergence-sized numbers. `--lenses=` subsets cost proportionally less (3 lenses ≈ $3.50). |
-| `launchcheck batch [config.json]` | Evaluate multiple projects from a `FutureengProjects.json` config file. Produces a portfolio dashboard showing all projects' verdicts, findings, and costs. `--only=project-id,other-id` to subset. `--lenses=` applies across all projects. |
-| `launchcheck share [path]` | Copies the latest HTML report to your Desktop as `launchcheck-<project>-<date>.html` and prints the path. Drag it into Slack or email. |
-| `launchcheck diff [path]` | Latest run vs the one before: new / resolved / still present / severity changed. |
-| `launchcheck history [path]` | Every past run with verdict, counts, rubric version, cost. |
-| `launchcheck calibrate [path]` | After a real launch or incident, tell it what it missed and what it over-flagged. **This is how it gets better.** |
-| `launchcheck lenses` | List lens ids (for `--lenses=` and calibration). |
+| `launchcheck run [path]` | Full evaluation (default: current directory). **18 lenses** (now includes state privacy, accessibility, third-party vetting). Use `--json-output` for CI/CD integration. |
+| `launchcheck batch [config.json]` | Evaluate all projects from `FutureengProjects.json`. Parallel processing, HTML + JSON reports. |
+| `launchcheck dashboard [config.json]` | Start web dashboard (localhost:3000) showing portfolio verdicts, blockers, findings, costs. |
+| `launchcheck share [path]` | Copy the latest HTML report to Desktop. Single self-contained file, works offline. |
+| `launchcheck diff [path]` | Compare latest two runs: what's new, resolved, still present. |
+| `launchcheck history [path]` | View all past runs with verdicts, finding counts, rubric versions, costs. |
+| `launchcheck calibrate [path]` | Record real incidents/false-flags to improve rubric. Generates standing checks and precedents. |
+| `launchcheck lenses` | List all 18 lens IDs for `--lenses=` and calibration. |
 
 Useful `run` flags. None are required.
 
@@ -69,7 +70,7 @@ Exit codes: `0` ran (whatever the verdict), `1` error, `2` bad usage, `3` **refu
    - runs the real test suite (`npm test`);
    - runs a real `npm audit`;
    - boots the app and sends every discovered route a request with **no credentials** (`probe-sweep`).
-4. **16 independent lens agents** (Claude Code, read-only tools), one per lane. Each sees only its own lane:
+4. **18 independent lens agents** (Claude Code, read-only tools), one per lane. Each sees only its own lane:
    - functional correctness & tests;
    - security;
    - data & privacy;
