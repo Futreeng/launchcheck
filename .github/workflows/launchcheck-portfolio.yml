@@ -1,0 +1,61 @@
+name: launchcheck portfolio (nightly)
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 2 AM UTC daily
+  workflow_dispatch:
+
+jobs:
+  portfolio-batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240  # Allow up to 4 hours for full portfolio
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install launchcheck
+        run: |
+          npm link
+
+      - name: Run portfolio batch evaluation
+        id: batch
+        run: |
+          launchcheck batch FutureengProjects.json \
+            --model=sonnet \
+            2>&1 | tee /tmp/batch-output.log
+
+          # Extract results
+          SUMMARY=$(grep "✓ Batch complete" /tmp/batch-output.log || echo "Batch evaluation completed")
+          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+
+      - name: Save portfolio dashboard
+        uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-reports
+          path: |
+            portfolio-*.html
+            portfolio-*.json
+          retention-days: 90
+
+      - name: Post portfolio summary to Slack
+        if: env.SLACK_WEBHOOK_URL != ''
+        uses: slackapi/slack-github-action@v1
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "📊 launchcheck Portfolio Evaluation Complete",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ steps.batch.outputs.summary }}\n\nView results: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                }
+              ]
+            }

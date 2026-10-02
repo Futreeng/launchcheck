@@ -1,0 +1,108 @@
+name: launchcheck
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  launch-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180  # Allow up to 3 hours for full 18-lens evaluation
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install launchcheck
+        run: |
+          cd ${{ github.workspace }}/../launchcheck
+          npm link || npm install -g ${{ github.workspace }}/../launchcheck
+
+      - name: Run launchcheck evaluation
+        id: launchcheck
+        run: |
+          launchcheck run "${{ github.workspace }}" \
+            --yes \
+            --stage="${{ github.event.pull_request.draft && 'concept' || 'pilot' }}" \
+            --model=sonnet \
+            --json-output > /tmp/launchcheck-output.json 2>&1 || true
+
+          # Extract verdict
+          VERDICT=$(jq -r '.verdict.verdict' /tmp/launchcheck-output.json 2>/dev/null || echo "UNKNOWN")
+          echo "verdict=$VERDICT" >> $GITHUB_OUTPUT
+          echo "result_file=/tmp/launchcheck-output.json" >> $GITHUB_OUTPUT
+
+      - name: Save report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: launchcheck-report
+          path: |
+            .launchcheck/runs/*/report.html
+            .launchcheck/runs/*/report.md
+            .launchcheck/runs/*/report.json
+          retention-days: 30
+
+      - name: Comment on PR with verdict
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const result = JSON.parse(fs.readFileSync('/tmp/launchcheck-output.json', 'utf8'));
+            const verdict = result.verdict?.verdict || 'UNKNOWN';
+            const icon = verdict === 'READY' ? '✅' : verdict === 'READY_WITH_CAVEATS' ? '⚠️' : '❌';
+
+            let comment = `## ${icon} launchcheck: ${verdict}\n\n`;
+            comment += `**Verdict:** ${result.verdict?.reasons?.join('; ') || 'See full report'}\n\n`;
+
+            const findings = result.lenses?.flatMap(l => l.findings || []).filter(f => f.verification?.verdict !== 'refuted') || [];
+            const blockers = findings.filter(f => f.blocking);
+            const critical = findings.filter(f => f.severity === 'critical' && f.verification?.verdict === 'confirmed');
+
+            if (critical.length > 0) {
+              comment += `### 🔴 Critical Issues\n`;
+              critical.slice(0, 5).forEach(f => {
+                comment += `- **[${f.severity}]** ${f.claim}\n`;
+              });
+              if (critical.length > 5) comment += `- ... and ${critical.length - 5} more\n`;
+              comment += '\n';
+            }
+
+            if (blockers.length > 0) {
+              comment += `### 🚫 Blockers\n`;
+              blockers.slice(0, 5).forEach(f => {
+                comment += `- **[${f.severity}]** ${f.claim}\n`;
+              });
+              if (blockers.length > 5) comment += `- ... and ${blockers.length - 5} more\n`;
+              comment += '\n';
+            }
+
+            comment += `**Full report:** See artifacts for launchcheck-report (HTML)\n\n`;
+            comment += `[View full evaluation](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Fail if NOT_READY
+        if: steps.launchcheck.outputs.verdict == 'NOT_READY'
+        run: |
+          echo "❌ Launch-readiness check failed: verdict is NOT_READY"
+          echo "See the PR comment and artifacts for details."
+          exit 1
+
+      - name: Report status
+        if: always()
+        run: |
+          VERDICT="${{ steps.launchcheck.outputs.verdict }}"
+          echo "✅ launchcheck evaluation complete: verdict=$VERDICT"

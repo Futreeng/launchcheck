@@ -25,6 +25,7 @@ const HELP = `launchcheck — Futreeng launch-readiness evaluator
       --agent-budget-usd=N       per-agent spend cap
       --yes                      never ask questions (state assumptions instead)
       --keep-sandbox             keep the temp sandbox copy for inspection
+      --json-output              output full report as JSON (for CI/CD integration)
   launchcheck diff [path]        compare the latest run with the one before it
   launchcheck history [path]     list past runs and verdicts
   launchcheck calibrate [path]   record a real outcome (interactive), or non-interactively:
@@ -81,12 +82,17 @@ async function cmdRun(target, f) {
     budgetUsd: f["agent-budget-usd"] ? Number(f["agent-budget-usd"]) : undefined,
     yes: !!f.yes,
     keepSandbox: !!f["keep-sandbox"],
+    jsonOutput: !!f["json-output"],
     agentTimeoutMs: 25 * 60 * 1000,
     testTimeoutMs: 5 * 60 * 1000,
   };
   if (opts.probeUrl) return fail("--probe-url is reserved and not implemented in v1: launchcheck boots its own sandboxed copy. (Non-local URLs are always refused.)");
   try {
     const { record, reportHtml, reportMd, histFile } = await evaluate(target, opts);
+    if (opts.jsonOutput) {
+      process.stdout.write(JSON.stringify(record, null, 2));
+      return;
+    }
     const live = topIssues(record);
     const unknowns = allUnknowns(record);
     const o = [];
