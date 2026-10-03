@@ -16,6 +16,12 @@
 - State privacy: CCPA, VPBA, COPPA, GDPR, Colorado/Connecticut/Utah CPAs
 - Regulated data: HIPAA, PCI-DSS, SOC 2, FERPA
 - Data security: encryption, deletion, export, retention, third-party DPA/BAA
+- **Document-Code Consistency** (NEW):
+  - Privacy policy claims "delete after 30 days" → verify code actually deletes
+  - "Data encrypted at rest" → verify DB encryption config
+  - "No third-party cookies" → verify no Google Analytics, Segment, etc.
+  - "Data never leaves US" → verify APIs/CDN/processors are US-only
+  - Undisclosed data collection → flag analytics/tracking not in policy
 
 **accessibility** (new):
 - WCAG 2.1 AA: screen readers, keyboard nav, color contrast (4.5:1), alt text
