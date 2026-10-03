@@ -151,7 +151,7 @@ launchcheck calibrate [path]        Record outcomes (learn loop)
 launchcheck lenses                  List all 18 lens IDs
 ```
 
-### 18 Lenses
+### 19 Lenses
 1. functional-tests
 2. security
 3. data-privacy
@@ -164,12 +164,13 @@ launchcheck lenses                  List all 18 lens IDs
 10. monetization
 11. design-completion
 12. legal
-13. **compliance-privacy** ← HIPAA, PCI, SOC 2
+13. **compliance-privacy** ← HIPAA, PCI, state privacy, document-code consistency
 14. **accessibility** ← WCAG 2.1 AA
 15. **third-party-vetting** ← dependencies, vendors
-16. validation
-17. rollback-incident
-18. uncovered-risk
+16. **soc2** ← SOC 2 Type II readiness (encryption, access control, logging, backups, change management)
+17. validation
+18. rollback-incident
+19. uncovered-risk
 
 ### Features
 - ✅ Org-wide rubric inheritance

@@ -27,7 +27,7 @@ That's the whole interface for the common case. Everything below is for when you
 
 | Command | What it does |
 |---|---|
-| `launchcheck run [path]` | Full evaluation (default: current directory). **18 lenses** (now includes state privacy, accessibility, third-party vetting). Use `--json-output` for CI/CD integration. |
+| `launchcheck run [path]` | Full evaluation (default: current directory). **19 lenses** (now includes state privacy, accessibility, third-party vetting, SOC 2). Use `--json-output` for CI/CD integration. |
 | `launchcheck batch [config.json]` | Evaluate all projects from `FutureengProjects.json`. Parallel processing, HTML + JSON reports. |
 | `launchcheck dashboard [config.json]` | Start web dashboard (localhost:3000) showing portfolio verdicts, blockers, findings, costs. |
 | `launchcheck share [path]` | Copy the latest HTML report to Desktop. Single self-contained file, works offline. |
@@ -70,7 +70,7 @@ Exit codes: `0` ran (whatever the verdict), `1` error, `2` bad usage, `3` **refu
    - runs the real test suite (`npm test`);
    - runs a real `npm audit`;
    - boots the app and sends every discovered route a request with **no credentials** (`probe-sweep`).
-4. **18 independent lens agents** (Claude Code, read-only tools), one per lane. Each sees only its own lane:
+4. **19 independent lens agents** (Claude Code, read-only tools), one per lane. Each sees only its own lane:
    - functional correctness & tests;
    - security;
    - data & privacy;
@@ -84,6 +84,7 @@ Exit codes: `0` ran (whatever the verdict), `1` error, `2` bad usage, `3` **refu
    - design/UX *completion* (never design taste);
    - legal surface (only "this appears to be missing");
    - **data privacy & state compliance** (CCPA, VPBA, COPPA, GDPR, data retention, encryption, deletion/export endpoints);
+   - **SOC 2 Type II readiness** (encryption, access control, logging, backups, change management, documentation);
    - validation evidence;
    - rollback & incident response;
    - project-specific risk not covered by the rest.

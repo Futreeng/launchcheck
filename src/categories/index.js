@@ -17,6 +17,7 @@ const LENSES = [
   require("./compliance-privacy"),
   require("./accessibility"),
   require("./third-party-vetting"),
+  require("./soc2"),
   require("./validation"),
   require("./rollback-incident"),
   require("./uncovered-risk"),
