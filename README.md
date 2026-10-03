@@ -34,12 +34,11 @@ That's it for the common case. Shipped projects are rare. launchcheck helps you 
 
 ## Setup (once)
 
-1. **Node 20+** (built and tested on Node 24, Windows 11).
+1. **Node 20+** (built and tested on Node 24).
 2. **Claude Code CLI** installed and logged in (`claude --version`). launchcheck finds it on PATH or at `~/.local/bin/claude.exe`. Override with `LAUNCHCHECK_CLAUDE_BIN`.
-3. **Global command** (optional but recommended):
+3. **Install globally:**
    ```bash
-   cd C:\path\to\future-tools\launchcheck
-   npm link
+   npm install -g @jlpanetta/launchcheck
    ```
    Now you can run `launchcheck` from anywhere.
 

@@ -1,6 +1,6 @@
 {
-  "name": "launchcheck",
-  "version": "1.0.0",
+  "name": "launchcheck-futreeng",
+  "version": "1.0.1",
   "description": "Launch-readiness evaluator with 19 independent lenses, adversarial verification, and evidence validation. Know what will break before you ship.",
   "type": "commonjs",
   "bin": {

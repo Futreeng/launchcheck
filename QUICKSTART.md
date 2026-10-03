@@ -12,7 +12,7 @@ If you don't have Claude Code yet: `npm install -g @anthropic-ai/claude-cli`
 ## Installation
 
 ```bash
-npm install -g launchcheck
+npm install -g @jlpanetta/launchcheck
 ```
 
 Verify it installed:
