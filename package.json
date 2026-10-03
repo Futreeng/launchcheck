@@ -1,7 +1,7 @@
 {
-  "name": "futreeng-launchcheck",
-  "version": "0.1.0",
-  "description": "Futreeng's internal launch-readiness evaluator: independent lens agents, adversarial verification, calibrated over time.",
+  "name": "launchcheck",
+  "version": "1.0.0",
+  "description": "Launch-readiness evaluator with 19 independent lenses, adversarial verification, and evidence validation. Know what will break before you ship.",
   "type": "commonjs",
   "bin": {
     "launchcheck": "bin/launchcheck.js"
@@ -10,8 +10,25 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node --test test/unit/*.test.js"
+    "test": "node --test test/unit/*.test.js",
+    "prepublishOnly": "npm test"
   },
-  "license": "UNLICENSED",
-  "private": true
+  "keywords": [
+    "launch",
+    "readiness",
+    "product",
+    "evaluation",
+    "security",
+    "compliance",
+    "testing",
+    "ci-cd"
+  ],
+  "license": "MIT",
+  "author": "Futreeng Inc.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/futreeng/launchcheck.git"
+  },
+  "homepage": "https://launchcheck.dev",
+  "bugs": "https://github.com/futreeng/launchcheck/issues"
 }

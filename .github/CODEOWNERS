@@ -1,0 +1,13 @@
+# launchcheck code ownership
+
+* @futreeng/launchcheck-maintainers
+
+# Security issues
+SECURITY.md @futreeng/security
+
+# Product decisions
+PRODUCT.md @futreeng/product
+ROADMAP.md @futreeng/product
+
+# Deployment
+DEPLOYMENT.md @futreeng/devops

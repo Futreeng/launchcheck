@@ -1,12 +1,34 @@
 # launchcheck
 
-Futreeng's internal launch-readiness evaluator. Point it at any project and it tells you, with evidence, where the project stands and what will bite you if you ship now. It proposes a verdict. **You decide.** It never deploys, never fixes anything, and never touches production.
+Know what will break before you ship.
 
-```
-node bin/launchcheck.js run C:\path\to\project
+**launchcheck** is a comprehensive launch-readiness evaluator that analyzes your project from 19 independent angles—security, compliance, performance, ops, design, and more. It gives you evidence-backed findings, surfaces hidden risks, and tells you exactly what to fix. **It never touches your code or production. You decide what to do with the verdict.**
+
+```bash
+launchcheck run /path/to/project
 ```
 
-That's the whole interface for the common case. Everything below is for when you need more.
+That's it for the common case. Shipped projects are rare. launchcheck helps you be one of them.
+
+---
+
+## Why launchcheck?
+
+**19 independent lenses** see your project from different angles simultaneously:
+- **Security** — Authentication, data handling, secret management
+- **Compliance** — GDPR, CCPA, HIPAA, PCI-DSS, SOC 2, state privacy laws
+- **Performance** — Latency, memory, database queries, load capacity
+- **Reliability** — Error handling, recovery, incident response
+- **Ops** — Monitoring, alerting, runbooks, oncall setup
+- **And 14 more...**
+
+**Adversarial verification** — Each finding is independently challenged by a second agent on a different model. Only claims that can't be refuted make it into your report.
+
+**Evidence validation** — Every citation is mechanically verified. The file exists. The lines exist. The code is actually there. False claims are dropped.
+
+**Deterministic verdict** — No LLM writes your verdict. Fixed rules mean you can audit the logic and disagree with it.
+
+**Sandbox execution** — Your code runs in an isolated copy with no credentials, no production config, no dev bypasses. Nothing touches production.
 
 ---
 
@@ -116,37 +138,37 @@ Each run writes `.launchcheck/runs/<run-id>/` in the **target** project, contain
 - **"Found by N separate checks"**: independent lenses often hit the same bug from different angles (an IDOR is a security, privacy and paywall issue). The summary merges them only when they share a key, or cite mostly the same lines *and* make a similar claim. This is deliberately conservative, since hiding a distinct issue is worse than showing a near-duplicate. The full detail lists every lens's finding separately.
 - **Since last run** comes from matching stable finding keys across runs. An issue only counts as "resolved" if that lens actually ran both times.
 
-## Portfolio: Batch evaluation across Futreeng projects
+## Portfolio: Batch evaluation across multiple projects
 
-Create a `FutureengProjects.json` file:
+Create a `projects.json` file:
 
 ```json
 {
-  "name": "Futreeng Product Portfolio",
+  "name": "My Product Portfolio",
   "projects": [
     {
-      "id": "convergence-app",
-      "name": "Convergence",
-      "path": "~/OneDrive/Desktop/convergence-app/convergence-app",
+      "id": "api-service",
+      "name": "API Service",
+      "path": "~/repos/api-service",
       "stage": "ga",
-      "owner": "Joe & Haron"
+      "owner": "Backend Team"
     },
     {
-      "id": "clipscore",
-      "name": "ClipScore",
-      "path": "~/Desktop/clipscore",
-      "stage": "pilot",
-      "owner": "Joe"
+      "id": "web-app",
+      "name": "Web App",
+      "path": "~/repos/web-app",
+      "stage": "beta",
+      "owner": "Frontend Team"
     }
   ],
-  "reports_dir": "~/Desktop/launchcheck-reports"
+  "reports_dir": "~/launchcheck-reports"
 }
 ```
 
 Then:
 
-```
-launchcheck batch FutureengProjects.json
+```bash
+launchcheck batch projects.json
 ```
 
 Evaluates all projects in parallel (5 concurrent agents per project), collects results, and produces:

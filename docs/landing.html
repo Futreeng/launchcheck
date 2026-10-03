@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>launchcheck – Launch-readiness evaluator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #fafafa;
+    }
+    a { color: #0066cc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: white;
+      border-bottom: 1px solid #eee;
+    }
+    .nav-brand { font-size: 20px; font-weight: 600; }
+    .nav-links { display: flex; gap: 30px; }
+    .nav-links a { color: #666; }
+
+    .hero {
+      padding: 80px 40px;
+      text-align: center;
+      background: white;
+      border-bottom: 1px solid #eee;
+    }
+    .hero h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+    .hero .tagline {
+      font-size: 20px;
+      color: #666;
+      margin-bottom: 30px;
+    }
+    .cta-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    .btn {
+      padding: 12px 30px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .btn-primary {
+      background: #0066cc;
+      color: white;
+    }
+    .btn-primary:hover { background: #0052a3; }
+    .btn-secondary {
+      background: white;
+      color: #0066cc;
+      border: 2px solid #0066cc;
+    }
+    .btn-secondary:hover { background: #f0f7ff; }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 40px;
+      padding: 80px 40px;
+      background: white;
+    }
+    .feature {
+      border-left: 4px solid #0066cc;
+      padding-left: 20px;
+    }
+    .feature h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    .feature p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .lenses {
+      padding: 80px 40px;
+      background: #fafafa;
+    }
+    .lenses h2 {
+      text-align: center;
+      margin-bottom: 50px;
+      font-size: 36px;
+    }
+    .lens-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .lens-item {
+      background: white;
+      padding: 20px;
+      border-radius: 4px;
+      border: 1px solid #eee;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .tiers {
+      padding: 80px 40px;
+      background: white;
+    }
+    .tiers h2 {
+      text-align: center;
+      margin-bottom: 50px;
+      font-size: 36px;
+    }
+    .tier-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    .tier-card {
+      border: 2px solid #eee;
+      border-radius: 8px;
+      padding: 40px;
+      background: white;
+      transition: all 0.3s;
+    }
+    .tier-card:hover {
+      border-color: #0066cc;
+      box-shadow: 0 4px 12px rgba(0, 102, 204, 0.1);
+    }
+    .tier-card h3 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    .tier-price {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0066cc;
+      margin-bottom: 30px;
+    }
+    .tier-features {
+      list-style: none;
+      margin-bottom: 30px;
+    }
+    .tier-features li {
+      padding: 8px 0;
+      font-size: 14px;
+      color: #666;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .tier-features li:before {
+      content: "✓ ";
+      color: #0066cc;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .footer {
+      background: #222;
+      color: #ccc;
+      padding: 40px;
+      text-align: center;
+      font-size: 14px;
+    }
+    .footer a { color: #0066cc; }
+
+    @media (max-width: 768px) {
+      .nav { flex-direction: column; gap: 20px; }
+      .nav-links { flex-direction: column; gap: 15px; }
+      .hero h1 { font-size: 32px; }
+      .cta-buttons { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-brand">launchcheck</div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#lenses">Lenses</a>
+      <a href="#pricing">Pricing</a>
+      <a href="https://github.com/futreeng/launchcheck">GitHub</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>Know what will break before you ship.</h1>
+    <p class="tagline">launchcheck analyzes your project from 19 angles—security, compliance, performance, ops, and more. Rigor. Evidence. One command.</p>
+    <div class="cta-buttons">
+      <button class="btn btn-primary" onclick="window.location.href='https://github.com/futreeng/launchcheck'">Get Started (Free)</button>
+      <button class="btn btn-secondary" onclick="window.location.href='#contact'">Schedule Demo</button>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="feature">
+      <h3>19 Independent Lenses</h3>
+      <p>Security, compliance, performance, ops, design—evaluated simultaneously by independent agents. No single view misses the story.</p>
+    </div>
+    <div class="feature">
+      <h3>Adversarial Verification</h3>
+      <p>Every finding is independently challenged by a second agent. Only claims that can't be refuted make it into your report.</p>
+    </div>
+    <div class="feature">
+      <h3>Evidence Validation</h3>
+      <p>Every citation is mechanically verified. The file exists. The lines exist. The code is actually there. False claims are dropped.</p>
+    </div>
+    <div class="feature">
+      <h3>Sandbox Execution</h3>
+      <p>Your code runs in an isolated copy with no credentials, no production config, no dev bypasses. Nothing touches production.</p>
+    </div>
+    <div class="feature">
+      <h3>Deterministic Verdict</h3>
+      <p>No LLM writes your verdict. Fixed rules mean you can audit the logic and disagree with it.</p>
+    </div>
+    <div class="feature">
+      <h3>Portfolio Insights (Pro)</h3>
+      <p>Evaluate multiple projects, spot patterns, track improvement over time, integrate with Slack and CI/CD.</p>
+    </div>
+  </section>
+
+  <section class="lenses" id="lenses">
+    <h2>19 Comprehensive Lenses</h2>
+    <div class="lens-grid">
+      <div class="lens-item">✓ Functional tests</div>
+      <div class="lens-item">✓ Security</div>
+      <div class="lens-item">✓ Data privacy</div>
+      <div class="lens-item">✓ Reliability</div>
+      <div class="lens-item">✓ Performance</div>
+      <div class="lens-item">✓ Cost exposure</div>
+      <div class="lens-item">✓ Operations</div>
+      <div class="lens-item">✓ Dependencies</div>
+      <div class="lens-item">✓ Docs & bus factor</div>
+      <div class="lens-item">✓ Monetization</div>
+      <div class="lens-item">✓ Design completion</div>
+      <div class="lens-item">✓ Legal surface</div>
+      <div class="lens-item">✓ Compliance & state laws</div>
+      <div class="lens-item">✓ Accessibility (WCAG)</div>
+      <div class="lens-item">✓ Third-party vetting</div>
+      <div class="lens-item">✓ SOC 2 readiness</div>
+      <div class="lens-item">✓ Validation evidence</div>
+      <div class="lens-item">✓ Rollback & incident response</div>
+      <div class="lens-item">✓ Uncovered risk</div>
+    </div>
+  </section>
+
+  <section class="tiers" id="pricing">
+    <h2>Pricing</h2>
+
+    <div class="tier-grid">
+      <div class="tier-card">
+        <h3>Free</h3>
+        <div class="tier-price">$0</div>
+        <ul class="tier-features">
+          <li>Full CLI (19 lenses)</li>
+          <li>Self-hosted evaluation</li>
+          <li>HTML/MD/JSON reports</li>
+          <li>Git history & diffs</li>
+          <li>Org rubric</li>
+          <li>Open-source</li>
+        </ul>
+        <button class="btn btn-primary" onclick="window.location.href='https://github.com/futreeng/launchcheck'">Get Started</button>
+      </div>
+
+      <div class="tier-card">
+        <h3>Pro</h3>
+        <div class="tier-price">$149–$499<span style="font-size: 14px;">/month</span></div>
+        <ul class="tier-features">
+          <li>Everything in Free</li>
+          <li>Managed evaluation</li>
+          <li>Portfolio dashboard</li>
+          <li>Historical trends</li>
+          <li>Slack/email integration</li>
+          <li>API access</li>
+          <li>2-year result storage</li>
+          <li>Priority support</li>
+        </ul>
+        <button class="btn btn-primary" onclick="alert('Coming Q1 2027')">Join Waitlist</button>
+      </div>
+
+      <div class="tier-card">
+        <h3>Enterprise</h3>
+        <div class="tier-price">Custom</div>
+        <ul class="tier-features">
+          <li>Everything in Pro</li>
+          <li>Custom lenses</li>
+          <li>VPC-isolated evaluation</li>
+          <li>On-premise option</li>
+          <li>SLA (99.5% uptime)</li>
+          <li>Dedicated support</li>
+          <li>Audit trail & compliance</li>
+        </ul>
+        <button class="btn btn-secondary" onclick="window.location.href='#contact'">Talk to Sales</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer" id="contact">
+    <p>© 2026 Futreeng Inc. | <a href="https://github.com/futreeng/launchcheck">GitHub</a> | <a href="mailto:hello@launchcheck.dev">hello@launchcheck.dev</a></p>
+  </footer>
+</body>
+</html>
