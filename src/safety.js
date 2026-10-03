@@ -218,6 +218,10 @@ function redactDeep(obj, redact) {
 }
 
 function formatRefusal(result, target) {
+  const isWin = process.platform === "win32";
+  const tempDir = isWin ? "$env:TEMP" : "/tmp";
+  const gitCmd = `git clone "${target}" ${tempDir}\\lc-clean  &&  launchcheck run ${tempDir}\\lc-clean`;
+
   const lines = [
     "",
     "launchcheck REFUSED to run: production config or live credentials are in scope.",
@@ -233,7 +237,7 @@ function formatRefusal(result, target) {
     "Ways forward:",
     "  - Move the production env file out of the project directory (keep it in your secret manager).",
     "  - Or evaluate a clean checkout that has no env files:",
-    `      git clone "${target}" %TEMP%\\lc-clean  (or /tmp/lc-clean)  &&  launchcheck run <that dir>`,
+    `      ${gitCmd}`,
     "  - If a flagged value is a deliberate fake used in tests, add the file to",
     '    "fake_secret_allowlist" in .launchcheck/project.json.',
     ""
